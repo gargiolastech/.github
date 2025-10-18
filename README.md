@@ -13,6 +13,18 @@ Questo README aggrega automaticamente i contenuti dai repository elencati in `.c
 ### Engineering Snippets
 
 <!-- INCLUDE: gargiolastech/engineering-snippets@main:README.md -->
-> ⚠️ **Errore**: impossibile includere `gargiolastech/engineering-snippets@main:README.md`. Verificare permessi/percorso/branch.
+<!-- BEGIN INCLUDE: gargiolastech/engineering-snippets@main:README.md -->
+
+> Fonte: `gargiolastech/engineering-snippets@main:README.md`
+
+# engineering-snippets
+Snippet mirati e piccoli esempi
+
+
+All'interno troverai codice da utilizzare per implementare all'interno della applicazioni
+
+- [specification-pattern](https://github.com/gargiolastech/engineering-snippets/tree/main/snippets/csharp/specification-pattern)
+
+<!-- END INCLUDE: gargiolastech/engineering-snippets@main:README.md -->
 
 ---
