@@ -139,3 +139,37 @@ jobs:
           git add README.md
           git commit -m "docs(readme): aggiornamento automatico da .config/repos.json"
           git push
+
+      - name: Update organization profile README
+        run: |
+          set -euo pipefail
+
+          PROFILE_DIR="profile"
+          PROFILE_README="${PROFILE_DIR}/README.md"
+
+          if [ ! -f "$PROFILE_README" ]; then
+            echo "::warning ::File $PROFILE_README non trovato. Creo un nuovo profilo con contenuto generato."
+            mkdir -p "$PROFILE_DIR"
+            cp README.md "$PROFILE_README"
+          else
+            echo "::group::Aggiornamento sezione auto-generata in $PROFILE_README"
+            # Estrai contenuto generato da README.md
+            GENERATED_CONTENT="$(cat README.md)"
+            # Sostituisci la sezione tra i placeholder
+            awk -v new="$GENERATED_CONTENT" '
+              /<!-- AUTO-GENERATED-START -->/ {print; print new; inblock=1; next}
+              /<!-- AUTO-GENERATED-END -->/ {inblock=0}
+              !inblock
+            ' "$PROFILE_README" > tmp && mv tmp "$PROFILE_README"
+            echo "::endgroup::"
+          fi
+
+          # Commit del README del profilo, se modificato
+          if git diff --quiet -- "$PROFILE_README"; then
+            echo "Nessuna modifica nel profile README."
+          else
+            git add "$PROFILE_README"
+            git commit -m "docs(profile): aggiornato README dell'organizzazione con contenuto auto-generato"
+            git push
+          fi
+
