@@ -1,0 +1,148 @@
+name: 🔄 Update Central README (from .config/repos.json)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # Ogni lunedì alle 06:00 Europe/Rome
+
+permissions:
+  contents: write
+
+jobs:
+  build-readme:
+    runs-on: ubuntu-latest
+    env:
+      # Usa GITHUB_TOKEN per repo della stessa organizzazione;
+      # se devi leggere repo esterni/di altra org, definisci un PAT fine-grained come REPOS_READ_TOKEN.
+      GH_READ_TOKEN: ${{ secrets.REPOS_READ_TOKEN || secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout .github repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git identity
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install jq
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq
+
+      - name: Validate .config/repos.json
+        run: |
+          set -euo pipefail
+          test -f ".config/repos.json" || { echo "::error::.config/repos.json non trovato"; exit 1; }
+          jq -e 'type=="array" and all(.[]; has("title") and has("key"))' .config/repos.json >/dev/null \
+            || { echo "::error::.config/repos.json non conforme: attesi campi title e key"; exit 1; }
+
+      - name: Build README.md from repos.json
+        run: |
+          set -euo pipefail
+
+          # Header auto-generato
+          {
+            echo "<!-- ⚠️ AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY. -->"
+            echo "# 🌐 Hub Organizzazione"
+            echo
+            echo "Questo README aggrega automaticamente i contenuti dai repository elencati in \`.config/repos.json\`."
+            echo
+            echo "---"
+            echo
+            echo "## 📚 Indice"
+            # Sommario (TOC) dalle voci di repos.json
+            jq -r '.[] | "- [" + .title + "](#" + ( .title | ascii_downcase | gsub("[^a-z0-9 ]";"") | gsub(" +";"-") ) + ")"' .config/repos.json
+            echo
+            echo "---"
+            echo
+          } > README.md
+
+          # Funzione Bash per URL-encode (path) tramite python
+          urlencode () {
+            python3 - <<'PY' "$1"
+            import sys, urllib.parse
+            print(urllib.parse.quote(sys.argv[1]))
+            PY
+          }
+
+          # Recupera contenuto file via API Contents (gestisce base64)
+          get_file_content () {
+            local key="$1"
+            # key: owner/repo@ref:path
+            local owner_repo="${key%%@*}"
+            local rest="${key#*@}"
+            local ref="${rest%%:*}"
+            local path="${rest#*:}"
+
+            local owner="${owner_repo%/*}"
+            local repo="${owner_repo#*/}"
+
+            local enc_path
+            enc_path="$(urlencode "$path")"
+
+            local url="https://api.github.com/repos/${owner}/${repo}/contents/${enc_path}?ref=${ref}"
+
+            # Nota: Accept raw non fornisce metadata; usiamo JSON e decodifichiamo base64 se necessario
+            response="$(curl -sSf -H "Authorization: Bearer ${GH_READ_TOKEN}" -H "Accept: application/vnd.github+json" "$url")" || return 1
+
+            encoding="$(echo "$response" | jq -r .encoding)"
+            if [ "$encoding" = "base64" ]; then
+              echo "$response" | jq -r .content | tr -d '\n' | base64 -d
+            else
+              # Alcuni casi possono ritornare testo in chiaro
+              echo "$response" | jq -r .content
+            fi
+          }
+
+          # Per ogni elemento in repos.json: stampa sezione + include contenuto
+          idx=0
+          jq -c '.[]' .config/repos.json | while read -r item; do
+            title="$(echo "$item" | jq -r .title)"
+            key="$(echo "$item"   | jq -r .key)"
+
+            [ -z "$title" ] && title="Sezione $idx"
+
+            echo "### $title" >> README.md
+            echo "" >> README.md
+            echo "<!-- INCLUDE: $key -->" >> README.md
+
+            if content="$(get_file_content "$key")"; then
+              echo "<!-- BEGIN INCLUDE: $key -->" >> README.md
+              echo "" >> README.md
+              # Aggiunge anche un link alla sorgente
+              owner_repo="${key%%@*}"
+              rest="${key#*@}"
+              ref="${rest%%:*}"
+              path="${rest#*:}"
+              echo "> Fonte: \`$owner_repo@$ref:$path\`" >> README.md
+              echo "" >> README.md
+              printf "%s\n" "$content" >> README.md
+              echo "" >> README.md
+              echo "<!-- END INCLUDE: $key -->" >> README.md
+            else
+              echo "> ⚠️ **Errore**: impossibile includere \`$key\`. Verificare permessi/percorso/branch." >> README.md
+            fi
+
+            echo "" >> README.md
+            echo "---" >> README.md
+            echo "" >> README.md
+            idx=$((idx+1))
+          done
+
+          # Normalizza EOL e rimuove newline finali multipli
+          awk 'BEGIN{RS="\r\n|\n|\r"; ORS="\n"} {print}' README.md > README.norm && mv README.norm README.md
+          sed -i -e ':a' -e '/^\n*$/{$d;N;ba' -e '}' README.md
+
+      - name: Commit & push changes (if any)
+        run: |
+          set -e
+          if git diff --quiet -- README.md; then
+            echo "Nessuna modifica da committare."
+            exit 0
+          fi
+          git add README.md
+          git commit -m "docs(readme): aggiornamento automatico da .config/repos.json"
+          git push
