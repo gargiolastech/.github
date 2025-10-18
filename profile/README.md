@@ -1,4 +1,4 @@
-## Hi there 👋
+# 👋 Benvenuto in GargiolasTech
 
 ## Repository dell’organizzazione
 
@@ -8,3 +8,9 @@
 | Snippet e boilerplate        | `gargiolastech/engineering-snippets`          | Template e snippet riutilizzabili        |
 | Librerie condivise           | `gargiolastech/shared-libs`                   | Componenti internal             |
 
+
+## 🚀 Ecosistema dei repository
+
+<!-- AUTO-GENERATED-START -->
+*(questa sezione viene aggiornata automaticamente ogni giorno alle 06:00)*
+<!-- AUTO-GENERATED-END -->
