@@ -3,7 +3,7 @@ name: 🔄 Update Central README (from .config/repos.json)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 6 * * 1" # Ogni lunedì alle 06:00 (Europe/Rome)
+    - cron: "0 5 * * *" # Ogni giorno alle 06:00 (Europe/Rome) inserisco 5 in quanto GitHub opera in TUN
 
 permissions:
   contents: write
