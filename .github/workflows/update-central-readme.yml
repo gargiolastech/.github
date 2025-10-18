@@ -53,25 +53,23 @@ jobs:
             echo "---"
             echo
             echo "## 📚 Indice"
-            # Sommario (TOC) dalle voci di repos.json
             jq -r '.[] | "- [" + .title + "](#" + ( .title | ascii_downcase | gsub("[^a-z0-9 ]";"") | gsub(" +";"-") ) + ")"' .config/repos.json
             echo
             echo "---"
             echo
           } > README.md
 
-          # Funzione Bash per URL-encode (path) tramite python
+          # URL-encode del path preservando gli slash (/)
           urlencode () {
-            python3 - <<'PY' "$1"
+            python3 - "$1" <<'PY'
             import sys, urllib.parse
-            print(urllib.parse.quote(sys.argv[1]))
+            print(urllib.parse.quote(sys.argv[1], safe="/"))
             PY
           }
 
-          # Recupera contenuto file via API Contents (gestisce base64)
+          # Recupera contenuto via GitHub Contents API (gestisce base64)
           get_file_content () {
-            local key="$1"
-            # key: owner/repo@ref:path
+            local key="$1"                         # owner/repo@ref:path
             local owner_repo="${key%%@*}"
             local rest="${key#*@}"
             local ref="${rest%%:*}"
@@ -85,24 +83,23 @@ jobs:
 
             local url="https://api.github.com/repos/${owner}/${repo}/contents/${enc_path}?ref=${ref}"
 
-            # Nota: Accept raw non fornisce metadata; usiamo JSON e decodifichiamo base64 se necessario
-            response="$(curl -sSf -H "Authorization: Bearer ${GH_READ_TOKEN}" -H "Accept: application/vnd.github+json" "$url")" || return 1
+            response="$(curl -sSf \
+              -H "Authorization: Bearer ${GH_READ_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "$url")" || return 1
 
             encoding="$(echo "$response" | jq -r .encoding)"
             if [ "$encoding" = "base64" ]; then
               echo "$response" | jq -r .content | tr -d '\n' | base64 -d
             else
-              # Alcuni casi possono ritornare testo in chiaro
               echo "$response" | jq -r .content
             fi
           }
 
-          # Per ogni elemento in repos.json: stampa sezione + include contenuto
           idx=0
           jq -c '.[]' .config/repos.json | while read -r item; do
             title="$(echo "$item" | jq -r .title)"
             key="$(echo "$item"   | jq -r .key)"
-
             [ -z "$title" ] && title="Sezione $idx"
 
             echo "### $title" >> README.md
@@ -112,7 +109,6 @@ jobs:
             if content="$(get_file_content "$key")"; then
               echo "<!-- BEGIN INCLUDE: $key -->" >> README.md
               echo "" >> README.md
-              # Aggiunge anche un link alla sorgente
               owner_repo="${key%%@*}"
               rest="${key#*@}"
               ref="${rest%%:*}"
@@ -135,6 +131,7 @@ jobs:
           # Normalizza EOL e rimuove newline finali multipli
           awk 'BEGIN{RS="\r\n|\n|\r"; ORS="\n"} {print}' README.md > README.norm && mv README.norm README.md
           sed -i -e ':a' -e '/^\n*$/{$d;N;ba' -e '}' README.md
+
 
       - name: Commit & push changes (if any)
         run: |
