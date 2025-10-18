@@ -3,7 +3,7 @@ name: 🔄 Update Central README (from .config/repos.json)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 6 * * 1" # Ogni lunedì alle 06:00 Europe/Rome
+    - cron: "0 6 * * 1" # Ogni lunedì alle 06:00 (Europe/Rome)
 
 permissions:
   contents: write
@@ -12,8 +12,8 @@ jobs:
   build-readme:
     runs-on: ubuntu-latest
     env:
-      # Usa GITHUB_TOKEN per repo della stessa organizzazione;
-      # se devi leggere repo esterni/di altra org, definisci un PAT fine-grained come REPOS_READ_TOKEN.
+      # Per repo esterni/di altra org, usa un PAT fine-grained (REPOS_READ_TOKEN).
+      # Per repo della stessa org, basta GITHUB_TOKEN.
       GH_READ_TOKEN: ${{ secrets.REPOS_READ_TOKEN || secrets.GITHUB_TOKEN }}
 
     steps:
@@ -39,7 +39,7 @@ jobs:
           jq -e 'type=="array" and all(.[]; has("title") and has("key"))' .config/repos.json >/dev/null \
             || { echo "::error::.config/repos.json non conforme: attesi campi title e key"; exit 1; }
 
-      - name: Build README.md from repos.json
+      - name: Build README.md from repos.json (no heredoc)
         run: |
           set -euo pipefail
 
@@ -61,10 +61,7 @@ jobs:
 
           # URL-encode del path preservando gli slash (/)
           urlencode () {
-            python3 - "$1" <<'PY'
-            import sys, urllib.parse
-            print(urllib.parse.quote(sys.argv[1], safe="/"))
-            PY
+            python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe="/"))' "$1"
           }
 
           # Recupera contenuto via GitHub Contents API (gestisce base64)
@@ -131,7 +128,6 @@ jobs:
           # Normalizza EOL e rimuove newline finali multipli
           awk 'BEGIN{RS="\r\n|\n|\r"; ORS="\n"} {print}' README.md > README.norm && mv README.norm README.md
           sed -i -e ':a' -e '/^\n*$/{$d;N;ba' -e '}' README.md
-
 
       - name: Commit & push changes (if any)
         run: |
