@@ -12,7 +12,7 @@ Questo README aggrega automaticamente i contenuti dai repository elencati in `.c
 
 ### Engineering Snippets
 
-<!-- INCLUDE: GargiolasTech/engineering-snippets@main:README.md -->
-> ⚠️ **Errore**: impossibile includere `GargiolasTech/engineering-snippets@main:README.md`. Verificare permessi/percorso/branch.
+<!-- INCLUDE: gargiolastech/engineering-snippets@main:README.md -->
+> ⚠️ **Errore**: impossibile includere `gargiolastech/engineering-snippets@main:README.md`. Verificare permessi/percorso/branch.
 
 ---
