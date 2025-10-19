@@ -27,34 +27,7 @@ All'interno troverai codice da utilizzare per implementare all'interno della app
 
 ## Utility
 
-## Flow Launcher
-
-### Installazione applicazione
-
-Windows Installer:
-
- https://github.com/Flow-Launcher/Prereleases/releases
-
-Winget
-winget install "Flow Launcher"
-
-Scoop
-scoop install Flow-Launcher
-
-Chocolatey
-choco install Flow-Launcher
-
-### Installazione Plugin
-
- - Installare i seguenti plugin: 
-   - GitHub
-   - GitHub Quick Launcher
-   - OneNote
-   - *Plugin Runner*
-
-### Plugin personali creati
-
-- [solution-with-rider](https://github.com/gargiolastech/engineering-snippets/tree/main/snippets/utility/solution-with-rider)
+- [flow-loauncher](https://github.com/gargiolastech/engineering-snippets/tree/main/snippets/utility/README.md)
 
 <!-- END INCLUDE: gargiolastech/engineering-snippets@main:README.md -->
 
