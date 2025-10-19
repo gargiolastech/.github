@@ -1,4 +1,6 @@
-# 👋 Benvenuto in GargiolasTech
+# 👋 Benvenuti in GargiolasTech
+Soluzioni DevOps e .NET Enterprise per architetture modulari e produttività degli sviluppatori.
+
 
 ## Repository dell’organizzazione
 
