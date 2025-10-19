@@ -25,7 +25,7 @@ All'interno troverai codice da utilizzare per implementare all'interno della app
 
 - [specification-pattern](https://github.com/gargiolastech/engineering-snippets/tree/main/snippets/csharp/specification-pattern)
 
-## Utility
+## utility
 
 - [flow-launcher](https://github.com/gargiolastech/engineering-snippets/tree/main/snippets/utility/README.md)
 
