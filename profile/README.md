@@ -41,7 +41,7 @@ All'interno troverai codice da utilizzare per implementare all'interno della app
 
 ## Utility
 
-- [flow-loauncher](https://github.com/gargiolastech/engineering-snippets/tree/main/snippets/utility/README.md)
+- [flow-launcher](https://github.com/gargiolastech/engineering-snippets/tree/main/snippets/utility/README.md)
 
 <!-- END INCLUDE: gargiolastech/engineering-snippets@main:README.md -->
 
