@@ -10,6 +10,9 @@ Soluzioni DevOps e .NET Enterprise per architetture modulari e produttività deg
 | Snippet e boilerplate        | `gargiolastech/engineering-snippets`          | Template e snippet riutilizzabili        |
 
 
+### Gist
+
+- [registrazione automatica DI](https://gist.github.com/gargiolas/630265db971685dd18a15281e56cac25.js)
 ## 🚀 Ecosistema dei repository
 
 <!-- AUTO-GENERATED-START -->
