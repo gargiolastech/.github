@@ -12,7 +12,8 @@ Soluzioni DevOps e .NET Enterprise per architetture modulari e produttività deg
 
 ### Gist
 
-- [registrazione automatica DI](https://gist.github.com/gargiolas/630265db971685dd18a15281e56cac25.js)
+- [registrazione automatica DI](https://gist.github.com/gargiolas/630265db971685dd18a15281e56cac25)
+  
 ## 🚀 Ecosistema dei repository
 
 <!-- AUTO-GENERATED-START -->
